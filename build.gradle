@@ -2,10 +2,26 @@ plugins {
 	id 'java'
 	id 'org.springframework.boot' version '3.2.0'
 	id 'io.spring.dependency-management' version '1.1.4'
+	id 'com.palantir.docker' version '0.35.0'
 }
 
-group = 'com..br'
-version = '0.0.1-SNAPSHOT'
+group = 'breno500as'
+version = '1.0.0'
+
+tasks.register('unpack', Copy) {
+	dependsOn bootJar
+	from(zipTree(tasks.bootJar.outputs.files.singleFile))
+	into("build/dependency")
+}
+
+
+docker {
+	name "${project.group}/${project.name}"
+	buildx true
+	platform 'linux/amd64'
+	copySpec.from(tasks.unpack.outputs).into('dependency')
+	buildArgs(['DEPENDENCY' : "dependency"])
+}
 
 java {
 	sourceCompatibility = '17'
@@ -17,6 +33,7 @@ repositories {
 
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter'
+	implementation platform('com.amazonaws:aws-java-sdk-bom:1.12.529')
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
 
