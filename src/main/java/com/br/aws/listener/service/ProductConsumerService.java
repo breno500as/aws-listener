@@ -34,20 +34,20 @@ public class ProductConsumerService {
 	@JmsListener(destination = "${aws.sqs.queue.product.name}")
 	public void receiveProductEvent(TextMessage textMessage) throws JMSException, IOException {
 
-		SnsMessageDTO snsMessage = this.objectMapper.readValue(textMessage.getText(), SnsMessageDTO.class);
+		final SnsMessageDTO snsMessage = this.objectMapper.readValue(textMessage.getText(), SnsMessageDTO.class);
 
-		EnvelopeDTO envelope = objectMapper.readValue(snsMessage.getMessage(), EnvelopeDTO.class);
+		final EnvelopeDTO envelope = objectMapper.readValue(snsMessage.getMessage(), EnvelopeDTO.class);
 
-		ProductEventDTO productEvent = objectMapper.readValue(envelope.getData(), ProductEventDTO.class);
+		final ProductEventDTO productEvent = objectMapper.readValue(envelope.getData(), ProductEventDTO.class);
 
 		log.info("Product event received - Event: {} - ProductId: {} - MessageId: {}", envelope.getEventType(),
 				productEvent.getProductId(), snsMessage.getMessageId());
 
-		final ProductEventLog productEventLog = buildProductEventLog(envelope, productEvent);
+		final ProductEventLog productEventLog = buildProductEventLog(envelope, productEvent, snsMessage);
 		productEventLogRepository.save(productEventLog);
 	}
 
-	private ProductEventLog buildProductEventLog(EnvelopeDTO envelope, ProductEventDTO productEvent) {
+	private ProductEventLog buildProductEventLog(EnvelopeDTO envelope, ProductEventDTO productEvent, SnsMessageDTO snsMessage) {
 		long timestamp = Instant.now().toEpochMilli();
 
 		ProductEventLog productEventLog = new ProductEventLog();
@@ -55,6 +55,7 @@ public class ProductConsumerService {
 		productEventLog.setSk(envelope.getEventType() + "_" + timestamp);
 		productEventLog.setEventType(envelope.getEventType());
 		productEventLog.setProductId(productEvent.getProductId());
+		productEventLog.setMessageId(snsMessage.getMessageId());
 		productEventLog.setUsername(productEvent.getUsername());
 		productEventLog.setTimestamp(timestamp);
 		productEventLog.setTtl(Instant.now().plus(Duration.ofMinutes(10)).getEpochSecond());

@@ -28,6 +28,9 @@ public class ProductEventLog {
 	@DynamoDBAttribute(attributeName = "username")
 	private String username;
 
+	@DynamoDBAttribute(attributeName = "messageId")
+	private String messageId;
+
 	@DynamoDBAttribute(attributeName = "timestamp")
 	private long timestamp;
 
@@ -98,5 +101,13 @@ public class ProductEventLog {
 
 	public void setTtl(long ttl) {
 		this.ttl = ttl;
+	}
+
+	public String getMessageId() {
+		return messageId;
+	}
+
+	public void setMessageId(String messageId) {
+		this.messageId = messageId;
 	}
 }
