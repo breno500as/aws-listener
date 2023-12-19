@@ -21,9 +21,9 @@ import com.br.aws.listener.repositories.ProductEventLogRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Service
-public class ProductConsumerService {
+public class ProductConsumerJmsService {
 
-	private static final Logger log = LoggerFactory.getLogger(ProductConsumerService.class);
+	private static final Logger log = LoggerFactory.getLogger(ProductConsumerJmsService.class);
 
 	@Autowired
 	private ObjectMapper objectMapper;
@@ -44,7 +44,7 @@ public class ProductConsumerService {
 				productEvent.getProductId(), snsMessage.getMessageId());
 
 		final ProductEventLog productEventLog = buildProductEventLog(envelope, productEvent, snsMessage);
-		productEventLogRepository.save(productEventLog);
+		this.productEventLogRepository.save(productEventLog);
 	}
 
 	private ProductEventLog buildProductEventLog(EnvelopeDTO envelope, ProductEventDTO productEvent, SnsMessageDTO snsMessage) {

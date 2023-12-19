@@ -1,4 +1,4 @@
-package com.br.aws.listener.config;
+package com.br.aws.listener.config.localstack;
 
 import javax.jms.Session;
 
